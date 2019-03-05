@@ -10,6 +10,7 @@ public class ConfigManager {
     public static ForgeConfigSpec.IntValue maxDistance;
     public static ForgeConfigSpec.BooleanValue disableLights;
     public static ForgeConfigSpec.BooleanValue eightBitNightmare;
+    public static ForgeConfigSpec.BooleanValue enableTorchImplementation;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -28,6 +29,11 @@ public class ConfigManager {
                 .comment("Enables retro mode.")
                 .translation("albedo.config.eightBitNightmare")
                 .define("eightBitNightmare", false);
+        enableTorchImplementation = builder
+                .comment("Enables default torch item implementation.")
+                .translation("albedo.config.enableTorchImplementation")
+                .worldRestart()
+                .define("enableTorchImplementation", true);
         maxDistance = builder
                 .comment("The maximum distance lights can be before being culled.")
                 .translation("albedo.config.maxDistance")

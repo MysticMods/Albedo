@@ -1,5 +1,6 @@
 package com.hrznstudio.albedo.lighting;
 
+import com.hrznstudio.albedo.Albedo;
 import com.hrznstudio.albedo.ConfigManager;
 import com.hrznstudio.albedo.event.GatherLightsEvent;
 import com.hrznstudio.albedo.util.ShaderUtil;
@@ -7,13 +8,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.LazyOptional;
 import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
@@ -83,27 +85,25 @@ public class LightManager {
                 cameraPos.y + maxDist,
                 cameraPos.z + maxDist
         ))) {
-            if (e instanceof ILightProvider) {
-                ((ILightProvider) e).gatherLights(event, e);
+            if (e instanceof EntityItem) {
+                LazyOptional<ILightProvider> provider = ((EntityItem) e).getItem().getCapability(Albedo.LIGHT_PROVIDER_CAPABILITY);
+                provider.ifPresent(p -> p.gatherLights(event, e));
             }
+            LazyOptional<ILightProvider> provider = e.getCapability(Albedo.LIGHT_PROVIDER_CAPABILITY);
+            provider.ifPresent(p -> p.gatherLights(event, e));
             for (ItemStack itemStack : e.getHeldEquipment()) {
-                Item item = itemStack.getItem();
-                if (item instanceof ILightProvider) {
-                    ((ILightProvider) item).gatherLights(event, e);
-                }
+                provider = itemStack.getCapability(Albedo.LIGHT_PROVIDER_CAPABILITY);
+                provider.ifPresent(p -> p.gatherLights(event, e));
             }
             for (ItemStack itemStack : e.getArmorInventoryList()) {
-                Item item = itemStack.getItem();
-                if (item instanceof ILightProvider) {
-                    ((ILightProvider) item).gatherLights(event, e);
-                }
+                provider = itemStack.getCapability(Albedo.LIGHT_PROVIDER_CAPABILITY);
+                provider.ifPresent(p -> p.gatherLights(event, e));
             }
         }
 
         for (TileEntity t : world.loadedTileEntityList) {
-            if (t instanceof ILightProvider) {
-                ((ILightProvider) t).gatherLights(event);
-            }
+            LazyOptional<ILightProvider> provider = t.getCapability(Albedo.LIGHT_PROVIDER_CAPABILITY);
+            provider.ifPresent(p -> p.gatherLights(event, null));
         }
 
         lights.sort(distComparator);

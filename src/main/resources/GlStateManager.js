@@ -17,11 +17,11 @@ function initializeCoreMod() {
 
                 for(m in methods) {
                     var method = methods[m];
-                    if (method.name.compareTo("enableLighting")==0) {
+                    if (method.name.equals("enableLighting")||method.name.equals("func_179145_e")) {
 				        var code = method.instructions;
                         code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/util/RenderUtil", "enableLightingUniforms", "()V", false));
                     }
-                    if (method.name.compareTo("disableLighting")==0) {
+                    if (method.name.equals("disableLighting")||method.name.equals("func_179140_f")) {
 				        var code = method.instructions;
                         code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/util/RenderUtil", "disableLightingUniforms", "()V", false));
                     }

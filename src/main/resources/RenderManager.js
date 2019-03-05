@@ -18,7 +18,7 @@ function initializeCoreMod() {
 
                 for(m in methods) {
                     var method = methods[m];
-                    if (method.name.compareTo("renderEntity")==0) {
+                    if (method.name.equals("renderEntity")||method.name.equals("func_188391_a")) {
 				        var code = method.instructions;
                         code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderEntityEvent", "postNewEvent", "(Lnet/minecraft/entity/Entity;)V", false))
                         code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))

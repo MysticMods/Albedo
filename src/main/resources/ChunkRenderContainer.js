@@ -17,7 +17,7 @@ function initializeCoreMod() {
 
                 for(m in methods) {
                     var method = methods[m];
-                    if (method.name.compareTo("preRenderChunk")==0) {
+                    if (method.name.equals("preRenderChunk")||method.name.equals("func_178003_a ")) {
 				        var code = method.instructions;
 				        var instr=code.toArray();
                         for(t in instr) {

@@ -1,25 +1,38 @@
 package com.hrznstudio.albedo;
 
 import com.hrznstudio.albedo.event.*;
+import com.hrznstudio.albedo.lighting.ILightProvider;
 import com.hrznstudio.albedo.lighting.Light;
 import com.hrznstudio.albedo.lighting.LightManager;
 import com.hrznstudio.albedo.util.ShaderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityEndGateway;
 import net.minecraft.tileentity.TileEntityEndPortal;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EventManager {
     public static boolean isGui = false;
@@ -221,14 +234,65 @@ public class EventManager {
         }
     }
 
+    public static class TorchLightProvider implements ILightProvider {
+        @Override
+        public void gatherLights(GatherLightsEvent event, Entity entity) {
+            event.add(Light.builder()
+                    .pos(
+                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)Minecraft.getInstance().getRenderPartialTicks())
+                    )
+                    .color(1.0f,0.78431374f,0)
+                    .radius(10)
+                    .build()
+            );
+        }
+    }
+
+    public static class RedstoneTorchProvider implements ILightProvider {
+        @Override
+        public void gatherLights(GatherLightsEvent event, Entity entity) {
+            event.add(Light.builder()
+                    .pos(
+                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)Minecraft.getInstance().getRenderPartialTicks())
+                    )
+                    .color(1.0f,0.2f,0)
+                    .radius(6)
+                    .build()
+            );
+        }
+    }
+
+    private LazyOptional<ILightProvider> torchProvider = LazyOptional.of(TorchLightProvider::new);
+    private LazyOptional<ILightProvider> redstoneProvider = LazyOptional.of(RedstoneTorchProvider::new);
+
     @SubscribeEvent
-    public void gatherLights(GatherLightsEvent event) {
-        event.add(new Light(0, 5, 0,1, 0, 0,1, 10));
-        event.add(new Light(20, 5, 10,1, 0, 1f,1, 10));
-        event.add(new Light(10, 5, 20,1, 1, 0,1, 10));
-        event.add(new Light(0, 5, 20,1, 0.4f, 0,1, 10));
-        event.add(new Light(10, 5, 10,1, 1, 1,1, 10));
-        event.add(new Light(10, 5, 0,1, 0.6f, 0,1, 10));
-        event.add(new Light(20, 5, 0,1, 0, 0.6f,1, 10));
+    public void attachCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
+        if (ConfigManager.enableTorchImplementation.get()) {
+            if (event.getObject().getItem() == Blocks.TORCH.asItem()) {
+                event.addCapability(new ResourceLocation("albedo", "light_provider"), new ICapabilityProvider() {
+                    @Nonnull
+                    @Override
+                    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable EnumFacing side) {
+                        if (cap == Albedo.LIGHT_PROVIDER_CAPABILITY)
+                            return torchProvider.cast();
+                        return LazyOptional.empty();
+                    }
+                });
+            } else if (event.getObject().getItem() == Blocks.REDSTONE_TORCH.asItem()) {
+                event.addCapability(new ResourceLocation("albedo", "light_provider"), new ICapabilityProvider() {
+                    @Nonnull
+                    @Override
+                    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable EnumFacing side) {
+                        if (cap == Albedo.LIGHT_PROVIDER_CAPABILITY)
+                            return redstoneProvider.cast();
+                        return LazyOptional.empty();
+                    }
+                });
+            }
+        }
     }
 }

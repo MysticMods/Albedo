@@ -17,7 +17,7 @@ function initializeCoreMod() {
 
                 for(m in methods) {
                     var method = methods[m];
-                    if (method.name.compareTo("render")==0) {
+                    if ((method.name.equals("render")||method.name.equals("func_203602_a"))&&method.desc.equals("Lnet/minecraft/tileentity/TileEntity;DDDFIZ")) {
 				        var code = method.instructions;
                         code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderTileEntityEvent", "postNewEvent", "(Lnet/minecraft/tileentity/TileEntity;)V", false))
                         code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))

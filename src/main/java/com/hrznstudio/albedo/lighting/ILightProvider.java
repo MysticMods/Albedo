@@ -7,10 +7,5 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface ILightProvider {
     @OnlyIn(Dist.CLIENT)
-    void gatherLights(GatherLightsEvent event);
-
-    @OnlyIn(Dist.CLIENT)
-    default void gatherLights(GatherLightsEvent event, Entity context) {
-        gatherLights(event);
-    }
+    void gatherLights(GatherLightsEvent event, Entity context);
 }

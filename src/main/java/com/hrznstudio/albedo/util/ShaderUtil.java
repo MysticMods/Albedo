@@ -39,6 +39,7 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
         OpenGlHelper.glAttachShader(program, fragmentShader);
         OpenGlHelper.glLinkProgram(program);
         String s = GL20.glGetProgramInfoLog(program);
+        System.out.println("GL LOG: "+s);
         return program;
     }
 

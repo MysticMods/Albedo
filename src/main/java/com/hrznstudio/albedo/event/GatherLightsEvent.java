@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.hrznstudio.albedo.lighting.Light;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -38,22 +39,25 @@ public class GatherLightsEvent extends Event {
         return camera;
     }
 
-    public void add(Light l) {
-        if (cameraPosition != null && cameraPosition.squareDistanceTo(l.x, l.y, l.z) > l.radius + maxDistance) {
-            return;
+    public void add(Light light) {
+        if(cameraPosition!=null) {
+            double dist = MathHelper.sqrt(cameraPosition.squareDistanceTo(light.x, light.y, light.z));
+            if (dist > light.radius + maxDistance) {
+                return;
+            }
         }
 
         if (camera != null && !camera.isBoundingBoxInFrustum(new AxisAlignedBB(
-                l.x - l.radius,
-                l.y - l.radius,
-                l.z - l.radius,
-                l.x + l.radius,
-                l.y + l.radius,
-                l.z + l.radius
+                light.x - light.radius,
+                light.y - light.radius,
+                light.z - light.radius,
+                light.x + light.radius,
+                light.y + light.radius,
+                light.z + light.radius
         ))) {
             return;
         }
-        lights.add(l);
+        lights.add(light);
     }
 
     @Override
