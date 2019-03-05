@@ -19,16 +19,9 @@ function initializeCoreMod() {
                     var method = methods[m];
                     if (method.name.compareTo("render")==0) {
 				        var code = method.instructions;
-				        var instr=code.toArray();
-                        for(t in instr) {
-                            var instruction = instr[t];
-                            if(instruction.getOpcode() == opcodes.RETURN) {
-                                code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderTileEntityEvent", "postNewEvent", "(Lnet/minecraft/tileentity/TileEntity;)V", false))
-                                code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))
-                                break;
-                            }
-                        }
-
+                        code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderTileEntityEvent", "postNewEvent", "(Lnet/minecraft/tileentity/TileEntity;)V", false))
+                        code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))
+                        break;
                     }
                 }
 

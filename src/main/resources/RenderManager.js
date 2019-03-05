@@ -20,16 +20,9 @@ function initializeCoreMod() {
                     var method = methods[m];
                     if (method.name.compareTo("renderEntity")==0) {
 				        var code = method.instructions;
-				        var instr=code.toArray();
-                        for(t in instr) {
-                            var instruction = instr[t];
-                            if(instruction.getOpcode() == opcodes.RETURN) {
-                                code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderEntityEvent", "postNewEvent", "(Lnet/minecraft/entity/Entity;)V", false))
-                                code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))
-                                break;
-                            }
-                        }
-
+                        code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderEntityEvent", "postNewEvent", "(Lnet/minecraft/entity/Entity;)V", false))
+                        code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))
+                        break;
                     }
                 }
 
