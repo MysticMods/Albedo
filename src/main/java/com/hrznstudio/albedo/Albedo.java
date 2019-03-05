@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileParser;
 
@@ -46,11 +47,12 @@ public class Albedo {
 
             }
         }, DefaultLightProvider::new);
-
     }
 
-    public void clientSetup(FMLClientSetupEvent event) {
+    public void loadComplete(FMLLoadCompleteEvent event) {
         DeferredWorkQueue.runLater(() -> ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ShaderUtil()));
+    }
+    public void clientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new EventManager());
         MinecraftForge.EVENT_BUS.register(new ConfigManager());
     }

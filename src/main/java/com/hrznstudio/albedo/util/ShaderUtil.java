@@ -53,7 +53,8 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
         if (shader == 0)
             return 0;
         try {
-            OpenGlHelper.glShaderSource(shader, readFileAsString(filename, manager));
+            String s =readFileAsString(filename, manager);
+            OpenGlHelper.glShaderSource(shader, s);
         } catch (Exception e) {
             e.printStackTrace();
         }

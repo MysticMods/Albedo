@@ -5,6 +5,9 @@ import com.hrznstudio.albedo.lighting.ILightProvider;
 import com.hrznstudio.albedo.lighting.Light;
 import com.hrznstudio.albedo.lighting.LightManager;
 import com.hrznstudio.albedo.util.ShaderUtil;
+import net.minecraft.block.BlockRedstoneTorch;
+import net.minecraft.block.BlockRedstoneWire;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -18,6 +21,7 @@ import net.minecraft.tileentity.TileEntityEndPortal;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,6 +37,7 @@ import org.lwjgl.opengl.GL20;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
 
 public class EventManager {
     public static boolean isGui = false;
@@ -40,17 +45,53 @@ public class EventManager {
     boolean postedLights = false;
     boolean precedesEntities = true;
     String section = "";
+    Thread thread;
 
     public void checkBitNightmare() {
         int bitLoc = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "bits");
         GL20.glUniform1i(bitLoc, ConfigManager.eightBitNightmare.get() ? 1 : 0);
     }
 
+    public static final HashMap<BlockPos, IBlockState> EXISTING = new HashMap<>();
+
     @SubscribeEvent
     public void onProfilerChange(ProfilerStartEvent event) {
         section = event.getSection();
         if (ConfigManager.isLightingEnabled()) {
             if (event.getSection().compareTo("terrain") == 0) {
+                if (Minecraft.getInstance().player != null) {
+                    EntityPlayer player = Minecraft.getInstance().player;
+                    if (Minecraft.getInstance().world != null) {
+                        IWorldReader reader = Minecraft.getInstance().world;
+                        BlockPos playerPos = player.getPosition();
+                        int r = 16;
+                        Iterable<BlockPos.MutableBlockPos> posIterable = BlockPos.getAllInBoxMutable(playerPos.add(-r, -r, -r), playerPos.add(r, r, r));
+                        for (BlockPos.MutableBlockPos pos : posIterable) {
+                            IBlockState state = reader.getBlockState(pos);
+                            if (state.getBlock() == Blocks.REDSTONE_WIRE) {
+                                int power  = state.get(BlockRedstoneWire.POWER);
+                                if(power!=0) {
+                                    Light light = Light.builder()
+                                            .pos(pos.getX(), pos.getY(), pos.getZ())
+                                            .color(1.0f, 0.2f, 0, (power/16f))
+                                            .radius(6)
+                                            .build();
+                                    LightManager.lights.add(light);
+                                }
+                            }
+                            if (state.getBlock() == Blocks.REDSTONE_TORCH||state.getBlock()== Blocks.REDSTONE_WALL_TORCH) {
+                                if(state.get(BlockRedstoneTorch.LIT)) {
+                                    Light light = Light.builder()
+                                            .pos(pos.getX(), pos.getY(), pos.getZ())
+                                            .color(1.0f, 0.2f, 0, 1.0f)
+                                            .radius(6)
+                                            .build();
+                                    LightManager.lights.add(light);
+                                }
+                            }
+                        }
+                    }
+                }
                 isGui = false;
                 precedesEntities = true;
                 ShaderUtil.useProgram(ShaderUtil.fastLightProgram);
@@ -239,11 +280,11 @@ public class EventManager {
         public void gatherLights(GatherLightsEvent event, Entity entity) {
             event.add(Light.builder()
                     .pos(
-                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)Minecraft.getInstance().getRenderPartialTicks()),
-                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)Minecraft.getInstance().getRenderPartialTicks()),
-                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)Minecraft.getInstance().getRenderPartialTicks())
+                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) Minecraft.getInstance().getRenderPartialTicks())
                     )
-                    .color(1.0f,0.78431374f,0)
+                    .color(1.0f, 0.78431374f, 0)
                     .radius(10)
                     .build()
             );
@@ -255,11 +296,11 @@ public class EventManager {
         public void gatherLights(GatherLightsEvent event, Entity entity) {
             event.add(Light.builder()
                     .pos(
-                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double)Minecraft.getInstance().getRenderPartialTicks()),
-                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double)Minecraft.getInstance().getRenderPartialTicks()),
-                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double)Minecraft.getInstance().getRenderPartialTicks())
+                            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) Minecraft.getInstance().getRenderPartialTicks()),
+                            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) Minecraft.getInstance().getRenderPartialTicks())
                     )
-                    .color(1.0f,0.2f,0)
+                    .color(1.0f, 0.2f, 0)
                     .radius(6)
                     .build()
             );
