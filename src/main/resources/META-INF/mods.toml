@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[25,)"
+issueTrackerURL="https://rr-dev.atlassian.net/servicedesk/customer/portal/3"
+[[mods]]
+modId="albedo"
+version="${file.jarVersion}"
+displayName="Albedo"
+credits=""
+authors="Horizon Studio, Elucent"
+description='''
+
+'''

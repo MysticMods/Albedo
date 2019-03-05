@@ -1,0 +1,8 @@
+{
+  "RenderManager": "RenderManager.js",
+  "GlStateManager": "GlStateManager.js",
+  "TileEntityRendererDispatcher": "TileEntityRendererDispatcher.js",
+  "ForgeHooksClient": "ForgeHooksClient.js",
+  "ChunkRenderContainer": "ChunkRenderContainer.js",
+  "Profiler": "Profiler.js"
+}
