@@ -26,6 +26,18 @@ public class GatherLightsEvent extends Event {
         return ImmutableList.copyOf(lights);
     }
 
+    public float getMaxDistance() {
+        return maxDistance;
+    }
+
+    public Vec3d getCameraPosition() {
+        return cameraPosition;
+    }
+
+    public ICamera getCamera() {
+        return camera;
+    }
+
     public void add(Light l) {
         if (cameraPosition != null && cameraPosition.squareDistanceTo(l.x, l.y, l.z) > l.radius + maxDistance) {
             return;

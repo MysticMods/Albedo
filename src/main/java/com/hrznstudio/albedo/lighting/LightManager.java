@@ -113,10 +113,6 @@ public class LightManager {
         lights.clear();
     }
 
-    public static double distanceSquared(double x1, double y1, double z1, double x2, double y2, double z2) {
-        return (Math.pow((x1 - x2), 2.0) + Math.pow((y1 - y2), 2.0) + Math.pow((z1 - z2), 2.0));
-    }
-
     public static class DistComparator implements Comparator<Light> {
         @Override
         public int compare(Light a, Light b) {

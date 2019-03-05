@@ -38,6 +38,6 @@ public class ConfigManager {
     }
 
     public static boolean isLightingEnabled() {
-        return disableLights.get();
+        return !disableLights.get();
     }
 }

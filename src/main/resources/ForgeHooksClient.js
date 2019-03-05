@@ -21,7 +21,7 @@ function initializeCoreMod() {
                     if (method.name.compareTo("handleCameraTransforms")==0) {
 				        var code = method.instructions;
 				        var instr=code.toArray();
-                        code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/event/RenderEntityEvent", "setTransform", "(Lnet/minecraft/client/renderer/model/ItemCameraTransforms$TransformType;)V", false))
+                        code.insertBefore(code.get(2), new MethodInsnNode(opcodes.INVOKESTATIC, "com/hrznstudio/albedo/util/RenderUtil", "setTransform", "(Lnet/minecraft/client/renderer/model/ItemCameraTransforms$TransformType;)V", false))
                         code.insertBefore(code.get(2), new VarInsnNode(opcodes.ALOAD, 1))
                         break;
 
