@@ -20,7 +20,7 @@ public class RenderUtil {
     }
 
     public static void enableLightingUniforms() {
-        if (!EventManager.isGui && !ConfigManager.isLightingDisabled()) {
+        if (!EventManager.isGui && ConfigManager.isLightingEnabled()) {
             if (enabledLast) {
                 ShaderUtil.useProgram(previousShader);
                 enabledLast = false;
@@ -33,7 +33,7 @@ public class RenderUtil {
     }
 
     public static void disableLightingUniforms() {
-        if (!EventManager.isGui && !ConfigManager.isLightingDisabled()) {
+        if (!EventManager.isGui && ConfigManager.isLightingEnabled()) {
             if (ShaderUtil.currentProgram == ShaderUtil.entityLightProgram) {
                 int lightPos = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lightingEnabled");
                 GL20.glUniform1i(lightPos, 0);

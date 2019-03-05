@@ -5,14 +5,10 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class ConfigManager {
 
     public static ForgeConfigSpec spec;
-    //
-//	public static Configuration config;
-//
-//	//LIGHTING
+
     public static ForgeConfigSpec.IntValue maxLights;
+    public static ForgeConfigSpec.IntValue maxDistance;
     public static ForgeConfigSpec.BooleanValue disableLights;
-    //
-//	//MISC
     public static ForgeConfigSpec.BooleanValue eightBitNightmare;
 
     static {
@@ -32,43 +28,16 @@ public class ConfigManager {
                 .comment("Enables retro mode.")
                 .translation("albedo.config.eightBitNightmare")
                 .define("eightBitNightmare", false);
+        maxDistance = builder
+                .comment("The maximum distance lights can be before being culled.")
+                .translation("albedo.config.maxDistance")
+                .defineInRange("maxDistance", 64, 16, 256);
 
         builder.pop();
         spec = builder.build();
     }
 
-    public static boolean isLightingDisabled() {
+    public static boolean isLightingEnabled() {
         return disableLights.get();
     }
-//
-//	public static void init(File configFile){
-//		if(config == null)
-//		{
-//			config = new Configuration(configFile);
-//			load();
-//		}
-//	}
-//
-//	public static void load(){
-//		config.addCustomCategoryComment("light", "Settings related to lighting.");
-//		config.addCustomCategoryComment("misc", "Settings related to random effects.");
-//
-//		maxLights = config.getInt("maxLights", "light", 10, 0, 100, "The maximum number of lights allowed to render in a scene. Lights are sorted nearest-first, so further-away lights will be culled after nearer lights.");
-//		enableLights = config.getBoolean("enableLights", "light", true, "Enables lighting in general.");
-//
-//		eightBitNightmare = config.getBoolean("eightBitNightmare", "misc", false, "Enables retro mode.");
-//
-//		if (config.hasChanged())
-//		{
-//			config.save();
-//		}
-//	}
-//
-//	@SubscribeEvent
-//	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event){
-//		if(event.getModID().equalsIgnoreCase(Albedo.MODID))
-//		{
-//			load();
-//		}
-//	}
 }

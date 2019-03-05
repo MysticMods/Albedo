@@ -1,6 +1,7 @@
 package com.hrznstudio.albedo;
 
 import com.hrznstudio.albedo.event.*;
+import com.hrznstudio.albedo.lighting.Light;
 import com.hrznstudio.albedo.lighting.LightManager;
 import com.hrznstudio.albedo.util.ShaderUtil;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class EventManager {
     @SubscribeEvent
     public void onProfilerChange(ProfilerStartEvent event) {
         section = event.getSection();
-        if (!ConfigManager.isLightingDisabled()) {
+        if (ConfigManager.isLightingEnabled()) {
             if (event.getSection().compareTo("terrain") == 0) {
                 isGui = false;
                 precedesEntities = true;
@@ -151,7 +152,7 @@ public class EventManager {
 
     @SubscribeEvent
     public void onRenderEntity(RenderEntityEvent event) {
-        if (!ConfigManager.isLightingDisabled()) {
+        if (ConfigManager.isLightingEnabled()) {
             if (event.getEntity() instanceof EntityLightningBolt) {
                 ShaderUtil.useProgram(0);
             } else if (section.equalsIgnoreCase("entities") || section.equalsIgnoreCase("blockEntities")) {
@@ -174,7 +175,7 @@ public class EventManager {
 
     @SubscribeEvent
     public void onRenderTileEntity(RenderTileEntityEvent event) {
-        if (!ConfigManager.isLightingDisabled()) {
+        if (ConfigManager.isLightingEnabled()) {
             if (event.getEntity() instanceof TileEntityEndPortal || event.getEntity() instanceof TileEntityEndGateway) {
                 ShaderUtil.useProgram(0);
             } else if (section.equalsIgnoreCase("entities") || section.equalsIgnoreCase("blockEntities")) {
@@ -191,7 +192,7 @@ public class EventManager {
 
     @SubscribeEvent
     public void onRenderChunk(RenderChunkUniformsEvent event) {
-        if (!ConfigManager.isLightingDisabled()) {
+        if (ConfigManager.isLightingEnabled()) {
             if (ShaderUtil.currentProgram == ShaderUtil.fastLightProgram) {
                 BlockPos pos = event.getChunk().getPosition();
                 int chunkX = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "chunkX");
@@ -218,5 +219,16 @@ public class EventManager {
             GlStateManager.disableLighting();
             ShaderUtil.useProgram(0);
         }
+    }
+
+    @SubscribeEvent
+    public void gatherLights(GatherLightsEvent event) {
+        event.add(new Light(0, 5, 0,1, 0, 0,1, 10));
+        event.add(new Light(20, 5, 10,1, 0, 1f,1, 10));
+        event.add(new Light(10, 5, 20,1, 1, 0,1, 10));
+        event.add(new Light(0, 5, 20,1, 0.4f, 0,1, 10));
+        event.add(new Light(10, 5, 10,1, 1, 1,1, 10));
+        event.add(new Light(10, 5, 0,1, 0.6f, 0,1, 10));
+        event.add(new Light(20, 5, 0,1, 0, 0.6f,1, 10));
     }
 }

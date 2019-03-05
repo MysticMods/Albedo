@@ -4,8 +4,14 @@ import com.hrznstudio.albedo.ConfigManager;
 import com.hrznstudio.albedo.event.GatherLightsEvent;
 import com.hrznstudio.albedo.util.ShaderUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.GL20;
@@ -14,14 +20,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class LightManager {
+    private static Vec3d cameraPos;
+    private static ICamera camera;
     public static ArrayList<Light> lights = new ArrayList<Light>();
     public static DistComparator distComparator = new DistComparator();
-
-    public static void addLight(Light l) {
-        if (l != null) {
-            lights.add(l);
-        }
-    }
 
     public static void uploadLights() {
         int max = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lightCount");
@@ -46,16 +48,61 @@ public class LightManager {
         }
     }
 
+    private static Vec3d interpolate(Entity entity, float partialTicks) {
+        return new Vec3d(
+                entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks,
+                entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks,
+                entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks
+        );
+    }
+
     public static void update(World world) {
-        GatherLightsEvent event = new GatherLightsEvent(lights);
+        Minecraft mc = Minecraft.getInstance();
+        Entity cameraEntity = mc.getRenderViewEntity();
+        if (cameraEntity != null) {
+            cameraPos = interpolate(cameraEntity, mc.getRenderPartialTicks());
+            camera = new Frustum();
+            camera.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
+        } else {
+            if (cameraPos == null) {
+                cameraPos = new Vec3d(0, 0, 0);
+            }
+            camera = null;
+            return;
+        }
+        GatherLightsEvent event = new GatherLightsEvent(lights, ConfigManager.maxDistance.get(), cameraPos, camera);
         MinecraftForge.EVENT_BUS.post(event);
 
-        for (Entity e : world.getEntities(Entity.class, ILightProvider.class::isInstance)) {
-            addLight(((ILightProvider) e).provideLight());
+        int maxDist = ConfigManager.maxDistance.get();
+
+        for (Entity e : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(
+                cameraPos.x - maxDist,
+                cameraPos.y - maxDist,
+                cameraPos.z - maxDist,
+                cameraPos.x + maxDist,
+                cameraPos.y + maxDist,
+                cameraPos.z + maxDist
+        ))) {
+            if (e instanceof ILightProvider) {
+                ((ILightProvider) e).gatherLights(event, e);
+            }
+            for (ItemStack itemStack : e.getHeldEquipment()) {
+                Item item = itemStack.getItem();
+                if (item instanceof ILightProvider) {
+                    ((ILightProvider) item).gatherLights(event, e);
+                }
+            }
+            for (ItemStack itemStack : e.getArmorInventoryList()) {
+                Item item = itemStack.getItem();
+                if (item instanceof ILightProvider) {
+                    ((ILightProvider) item).gatherLights(event, e);
+                }
+            }
         }
+
         for (TileEntity t : world.loadedTileEntityList) {
             if (t instanceof ILightProvider) {
-                addLight(((ILightProvider) t).provideLight());
+                ((ILightProvider) t).gatherLights(event);
             }
         }
 
@@ -72,11 +119,9 @@ public class LightManager {
 
     public static class DistComparator implements Comparator<Light> {
         @Override
-        public int compare(Light arg0, Light arg1) {
-            double dist1 = distanceSquared(arg0.x, arg0.y, arg0.z,
-                    Minecraft.getInstance().player.posX, Minecraft.getInstance().player.posY, Minecraft.getInstance().player.posZ);
-            double dist2 = distanceSquared(arg1.x, arg1.y, arg1.z,
-                    Minecraft.getInstance().player.posX, Minecraft.getInstance().player.posY, Minecraft.getInstance().player.posZ);
+        public int compare(Light a, Light b) {
+            double dist1 = cameraPos.squareDistanceTo(a.x, a.y, a.z);
+            double dist2 = cameraPos.squareDistanceTo(b.x, b.y, b.z);
             return Double.compare(dist1, dist2);
         }
     }
