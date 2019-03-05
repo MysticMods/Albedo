@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 @Mod("albedo")
 public class Albedo {
     public Albedo() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigManager.spec);
@@ -52,6 +53,7 @@ public class Albedo {
     public void loadComplete(FMLLoadCompleteEvent event) {
         DeferredWorkQueue.runLater(() -> ((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ShaderUtil()));
     }
+
     public void clientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new EventManager());
         MinecraftForge.EVENT_BUS.register(new ConfigManager());
