@@ -183,7 +183,7 @@ public class EventManager {
             } else if (section.equalsIgnoreCase("entities") || section.equalsIgnoreCase("blockEntities")) {
                 ShaderUtil.entityLightProgram.useShader();
             }
-            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+            if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("entityPos", (float) event.getEntity().posX, (float) event.getEntity().posY + event.getEntity().height / 2.0f, (float) event.getEntity().posZ);
                 ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
                 if (event.getEntity() instanceof EntityLivingBase) {
@@ -204,7 +204,7 @@ public class EventManager {
             } else if (section.equalsIgnoreCase("entities") || section.equalsIgnoreCase("blockEntities")) {
                 ShaderUtil.entityLightProgram.useShader();
             }
-            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+            if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("entityPos", (float) event.getEntity().getPos().getX(), (float) event.getEntity().getPos().getY(), (float) event.getEntity().getPos().getZ());
                 ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
             }
@@ -214,7 +214,7 @@ public class EventManager {
     @SubscribeEvent
     public void onRenderChunk(RenderChunkUniformsEvent event) {
         if (ConfigManager.isLightingEnabled()) {
-            if (ShaderUtil.fastLightProgram.isCurrentShader()) {
+            if (ShaderManager.isCurrentShader(ShaderUtil.fastLightProgram)) {
                 BlockPos pos = event.getChunk().getPosition();
                 ShaderUtil.fastLightProgram.setUniform("chunkX", pos.getX());
                 ShaderUtil.fastLightProgram.setUniform("chunkY", pos.getY());

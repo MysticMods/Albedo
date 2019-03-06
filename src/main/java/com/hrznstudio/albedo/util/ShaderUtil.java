@@ -26,9 +26,9 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
     public static ShaderManager depthProgram;
 
     public static void init(IResourceManager manager) {
-        fastLightProgram=new ShaderManager(new ResourceLocation("albedo:fastlight"), manager);
-        entityLightProgram=new ShaderManager(new ResourceLocation("albedo:entitylight"), manager);
-        depthProgram=new ShaderManager(new ResourceLocation("albedo:depth"), manager);
+        fastLightProgram = new ShaderManager(new ResourceLocation("albedo:fastlight"), manager);
+        entityLightProgram = new ShaderManager(new ResourceLocation("albedo:entitylight"), manager);
+        depthProgram = new ShaderManager(new ResourceLocation("albedo:depth"), manager);
     }
 
     public static int loadProgram(String vsh, String fsh, IResourceManager manager) {

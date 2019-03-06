@@ -25,7 +25,7 @@ public class RenderUtil {
                     previousShader.useShader();
                 enabledLast = false;
             }
-            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+            if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("lightingEnabled", true);
             }
         }
@@ -33,7 +33,7 @@ public class RenderUtil {
 
     public static void disableLightingUniforms() {
         if (!EventManager.isGui && ConfigManager.isLightingEnabled()) {
-            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+            if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("lightingEnabled", false);
             }
             if (!enabledLast) {
