@@ -20,15 +20,15 @@ import java.util.stream.Collectors;
 
 public class ShaderUtil implements ISelectiveResourceReloadListener {
 
-    public static int currentProgram = -1;
-    public static int fastLightProgram;
-    public static int entityLightProgram = 0;
-    public static int depthProgram = 0;
+    //public static int currentProgram = -1;
+    public static ShaderManager fastLightProgram;
+    public static ShaderManager entityLightProgram;
+    public static ShaderManager depthProgram;
 
     public static void init(IResourceManager manager) {
-        fastLightProgram = loadProgram("albedo:shaders/fastlight.vs", "albedo:shaders/fastlight.fs", manager);
-        entityLightProgram = loadProgram("albedo:shaders/entitylight.vs", "albedo:shaders/entitylight.fs", manager);
-        depthProgram = loadProgram("albedo:shaders/depth.vs", "albedo:shaders/depth.fs", manager);
+        fastLightProgram=new ShaderManager(new ResourceLocation("albedo:fastlight"), manager);
+        entityLightProgram=new ShaderManager(new ResourceLocation("albedo:entitylight"), manager);
+        depthProgram=new ShaderManager(new ResourceLocation("albedo:depth"), manager);
     }
 
     public static int loadProgram(String vsh, String fsh, IResourceManager manager) {
@@ -43,11 +43,6 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
         return program;
     }
 
-    public static void useProgram(int program) {
-        OpenGlHelper.glUseProgram(program);
-        currentProgram = program;
-    }
-
     public static int createShader(String filename, int shaderType, IResourceManager manager) {
         int shader = OpenGlHelper.glCreateShader(shaderType);
         if (shader == 0)
@@ -58,7 +53,6 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        OpenGlHelper.glCompileShader(shader);
         OpenGlHelper.glCompileShader(shader);
 
         if (GL20.glGetShaderi(shader, OpenGlHelper.GL_COMPILE_STATUS) == GL11.GL_FALSE)
@@ -78,7 +72,7 @@ public class ShaderUtil implements ISelectiveResourceReloadListener {
             IResource resource = manager.getResource(new ResourceLocation(filename));
             in = resource.getInputStream();
         } catch (FileNotFoundException e) {
-
+            e.printStackTrace();
         }
 
         String s = "";

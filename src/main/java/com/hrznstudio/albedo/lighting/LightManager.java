@@ -3,6 +3,7 @@ package com.hrznstudio.albedo.lighting;
 import com.hrznstudio.albedo.Albedo;
 import com.hrznstudio.albedo.ConfigManager;
 import com.hrznstudio.albedo.event.GatherLightsEvent;
+import com.hrznstudio.albedo.util.ShaderManager;
 import com.hrznstudio.albedo.util.ShaderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -22,30 +23,24 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class LightManager {
-    private static Vec3d cameraPos;
-    private static ICamera camera;
+    public static Vec3d cameraPos;
+    public static ICamera camera;
     public static ArrayList<Light> lights = new ArrayList<Light>();
     public static DistComparator distComparator = new DistComparator();
 
     public static void uploadLights() {
-        int max = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lightCount");
-        GL20.glUniform1i(max, lights.size());
+        ShaderManager shader = ShaderManager.getCurrentShader();
+        shader.setUniform("lightCount", lights.size());
         for (int i = 0; i < Math.min(ConfigManager.maxLights.get(), lights.size()); i++) {
             if (i < lights.size()) {
                 Light l = lights.get(i);
-                int pos = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].position");
-                GL20.glUniform3f(pos, l.x, l.y, l.z);
-                int color = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].color");
-                GL20.glUniform4f(color, l.r, l.g, l.b, l.a);
-                int radius = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].radius");
-                GL20.glUniform1f(radius, l.radius);
+                shader.setUniform("lights[" + i + "].position", l.x, l.y, l.z);
+                shader.setUniform("lights[" + i + "].color", l.r, l.g, l.b, l.a);
+                shader.setUniform("lights[" + i + "].radius", l.radius);
             } else {
-                int pos = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].position");
-                GL20.glUniform3f(pos, 0, 0, 0);
-                int color = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].color");
-                GL20.glUniform4f(color, 0, 0, 0, 0);
-                int radius = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lights[" + i + "].radius");
-                GL20.glUniform1f(radius, 0);
+                shader.setUniform("lights[" + i + "].position", 0, 0, 0);
+                shader.setUniform("lights[" + i + "].color", 0, 0, 0, 0);
+                shader.setUniform("lights[" + i + "].radius", 0);
             }
         }
     }
@@ -72,6 +67,7 @@ public class LightManager {
             camera = null;
             return;
         }
+
         GatherLightsEvent event = new GatherLightsEvent(lights, ConfigManager.maxDistance.get(), cameraPos, camera);
         MinecraftForge.EVENT_BUS.post(event);
 

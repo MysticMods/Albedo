@@ -7,11 +7,10 @@ import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraftforge.common.MinecraftForge;
-import org.lwjgl.opengl.GL20;
 
 public class RenderUtil {
     public static boolean lightingEnabled = false;
-    public static int previousShader = 0;
+    public static ShaderManager previousShader;
     public static boolean enabledLast = false;
     public static ItemCameraTransforms.TransformType itemTransformType = TransformType.NONE;
 
@@ -22,26 +21,25 @@ public class RenderUtil {
     public static void enableLightingUniforms() {
         if (!EventManager.isGui && ConfigManager.isLightingEnabled()) {
             if (enabledLast) {
-                ShaderUtil.useProgram(previousShader);
+                if (previousShader != null)
+                    previousShader.useShader();
                 enabledLast = false;
             }
-            if (ShaderUtil.currentProgram == ShaderUtil.entityLightProgram) {
-                int lightPos = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lightingEnabled");
-                GL20.glUniform1i(lightPos, 1);
+            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+                ShaderUtil.entityLightProgram.setUniform("lightingEnabled", true);
             }
         }
     }
 
     public static void disableLightingUniforms() {
         if (!EventManager.isGui && ConfigManager.isLightingEnabled()) {
-            if (ShaderUtil.currentProgram == ShaderUtil.entityLightProgram) {
-                int lightPos = GL20.glGetUniformLocation(ShaderUtil.currentProgram, "lightingEnabled");
-                GL20.glUniform1i(lightPos, 0);
+            if (ShaderUtil.entityLightProgram.isCurrentShader()) {
+                ShaderUtil.entityLightProgram.setUniform("lightingEnabled", false);
             }
             if (!enabledLast) {
-                previousShader = ShaderUtil.currentProgram;
+                previousShader = ShaderManager.getCurrentShader();
                 enabledLast = true;
-                ShaderUtil.useProgram(0);
+                ShaderManager.stopShader();
             }
         }
     }
