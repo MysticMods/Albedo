@@ -37,9 +37,10 @@ public class LightManager {
                 shader.setUniform("lights[" + i + "].heading", l.rx, l.ry, l.rz);
                 shader.setUniform("lights[" + i + "].angle", l.angle);
             } else {
-                shader.setUniform("lights[" + i + "].position", 0, 0, 0);
-                shader.setUniform("lights[" + i + "].color", 0, 0, 0, 0);
-                shader.setUniform("lights[" + i + "].radius", 0);
+                //shader.setUniform("lights[" + i + "].position", 0, 0, 0);
+                //shader.setUniform("lights[" + i + "].color", 0, 0, 0, 0);
+                //shader.setUniform("lights[" + i + "].heading", 0, 0, 0);
+                //shader.setUniform("lights[" + i + "].angle", 0);
             }
         }
     }

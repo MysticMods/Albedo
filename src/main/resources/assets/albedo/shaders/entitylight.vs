@@ -35,6 +35,16 @@ float distSq(vec3 a, vec3 b) {
 
 
 
+vec3 snormalize(vec3 v) {
+	float len = length(v);
+	return (len == 0.0) ? vec3(0.0, 1.0, 0.0) : v / len;
+}
+
+//Returns the *angle* between two vectors of any length
+float angle(vec3 a, vec3 b) {
+	return acos(dot(snormalize(a), snormalize(b)));
+}
+
 void main() {
 	vec4 pos = gl_ModelViewProjectionMatrix * gl_Vertex;
 
@@ -64,10 +74,19 @@ void main() {
 		float radius = length(lights[i].heading);
 		
 		if (distSq(lights[i].position,position) <= pow(radius,2)) {
-			//TODO: Cone light falloff calcs go here
+			//Check cone intensity
+			float angleFromHeading = angle(position - lights[i].position, lights[i].heading);
+			float angleDelta = max(lights[i].angle - angleFromHeading, 0);
+			angleDelta /= (lights[i].angle==0) ? 0.001 : lights[i].angle;
+			float coneIntensity = min(pow(angleDelta,2), 1);
+			
+			//combine cone attenuation with distance attenuation
+			float distIntensity = pow(max(0,1.0f-distance(lights[i].position,position)/radius),2);
+			float combIntensity = min(coneIntensity, distIntensity);
 			
 			float faceexposure = 1.0f;
-			float intensity = pow(max(0,1.0f-distance(lights[i].position,position)/radius),2) * 1.0f * ((max(0,faceexposure)+0.5f)/1.5f);
+			float intensity = combIntensity * 1.0f * ((max(0,faceexposure)+0.5f)/1.5f);
+			
 			totalIntens += intensity;
 			maxIntens = max(maxIntens,intensity);
 		}
@@ -78,10 +97,19 @@ void main() {
 		float radius = length(lights[i].heading);
 		
 		if (distSq(lights[i].position,position) <= pow(radius,2)) {
-			//TODO: Cone light falloff calcs go here
-
+			//Check cone intensity
+			float angleFromHeading = angle(position - lights[i].position, lights[i].heading);
+			float angleDelta = max(lights[i].angle - angleFromHeading, 0);
+			angleDelta /= (lights[i].angle==0) ? 0.001 : lights[i].angle;
+			float coneIntensity = min(pow(angleDelta,2), 1);
+			
+			//combine cone attenuation with distance attenuation
+			float distIntensity = pow(max(0,1.0f-distance(lights[i].position,position)/radius),2);
+			float combIntensity = min(coneIntensity, distIntensity);
+			
 			float faceexposure = 1.0f;
-			float intensity = pow(max(0,1.0f-distance(lights[i].position,position)/radius),2) * 1.0f * lights[i].color.w * ((max(0,faceexposure)+0.5f)/1.5f);
+			float intensity = combIntensity * 1.0f * lights[i].color.w * ((max(0,faceexposure)+0.5f)/1.5f);
+			
 			sumR += (intensity/totalIntens)*lights[i].color.x;
 			sumG += (intensity/totalIntens)*lights[i].color.y;
 			sumB += (intensity/totalIntens)*lights[i].color.z;

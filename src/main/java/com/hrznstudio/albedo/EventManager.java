@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -185,13 +186,13 @@ public class EventManager {
             }
             if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("entityPos", (float) event.getEntity().posX, (float) event.getEntity().posY + event.getEntity().height / 2.0f, (float) event.getEntity().posZ);
-                ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
-                if (event.getEntity() instanceof EntityLivingBase) {
-                    EntityLivingBase e = (EntityLivingBase) event.getEntity();
-                    if (e.hurtTime > 0 || e.deathTime > 0) {
-                        ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 0f, 0f, 0.3f);
-                    }
-                }
+                //ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
+                //if (event.getEntity() instanceof EntityLivingBase) {
+                //    EntityLivingBase e = (EntityLivingBase) event.getEntity();
+                //    if (e.hurtTime > 0 || e.deathTime > 0) {
+                //        ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 0f, 0f, 0.3f);
+                //    }
+                //}
             }
         }
     }
@@ -206,7 +207,7 @@ public class EventManager {
             }
             if (ShaderManager.isCurrentShader(ShaderUtil.entityLightProgram)) {
                 ShaderUtil.entityLightProgram.setUniform("entityPos", (float) event.getEntity().getPos().getX(), (float) event.getEntity().getPos().getY(), (float) event.getEntity().getPos().getZ());
-                ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
+                //ShaderUtil.entityLightProgram.setUniform("colorMult", 1f, 1f, 1f, 0f);
             }
         }
     }
@@ -249,6 +250,8 @@ public class EventManager {
                             (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) Minecraft.getInstance().getRenderPartialTicks())
                     )
                     .color(1.0f, 0.78431374f, 0)
+                    .color(1.0f, 1.0f, 1.0f)
+                    //.direction(10f, 0f, 0f, (float)(Math.PI/8.0))
                     .radius(10)
                     .build()
             );
@@ -258,6 +261,8 @@ public class EventManager {
     public static class RedstoneTorchProvider implements ILightProvider {
         @Override
         public void gatherLights(GatherLightsEvent event, Entity entity) {
+            //float theta = entity.ticksExisted / 10f;
+            //Vec3d heading = new Vec3d(10, 0, 0).rotateYaw(theta);
             event.add(Light.builder()
                     .pos(
                             (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) Minecraft.getInstance().getRenderPartialTicks()),
@@ -266,6 +271,9 @@ public class EventManager {
                     )
                     .color(1.0f, 0, 0)
                     .radius(6)
+                    //.color(1, 1, 1)
+                    //.direction(10f, 0f, 0f, (float)(Math.PI/8.0))
+                    //.direction(heading, (float)(Math.PI/3.0))
                     .build()
             );
         }

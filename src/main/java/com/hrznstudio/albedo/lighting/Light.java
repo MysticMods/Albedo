@@ -127,7 +127,15 @@ public class Light {
             this.angle = angle;
             return this;
         }
-
+        
+        public Builder direction(Vec3d vec, float angle) {
+            this.rx = (float)vec.x;
+            this.ry = (float)vec.y;
+            this.rz = (float)vec.z;
+            this.angle = angle;
+            return this;
+        }
+        
         public Light build() {
             if (Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) &&
                     Float.isFinite(r) && Float.isFinite(g) && Float.isFinite(b) && Float.isFinite(a) &&
@@ -137,6 +145,5 @@ public class Light {
                 throw new IllegalArgumentException("Position, color, and radius must be set, and cannot be infinite");
             }
         }
-
     }
 }
