@@ -4,7 +4,6 @@ import com.hrznstudio.albedo.Albedo;
 import com.hrznstudio.albedo.ConfigManager;
 import com.hrznstudio.albedo.event.GatherLightsEvent;
 import com.hrznstudio.albedo.util.ShaderManager;
-import com.hrznstudio.albedo.util.ShaderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
@@ -17,7 +16,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
-import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +34,8 @@ public class LightManager {
                 Light l = lights.get(i);
                 shader.setUniform("lights[" + i + "].position", l.x, l.y, l.z);
                 shader.setUniform("lights[" + i + "].color", l.r, l.g, l.b, l.a);
-                shader.setUniform("lights[" + i + "].radius", l.radius);
+                shader.setUniform("lights[" + i + "].heading", l.rx, l.ry, l.rz);
+                shader.setUniform("lights[" + i + "].angle", l.angle);
             } else {
                 shader.setUniform("lights[" + i + "].position", 0, 0, 0);
                 shader.setUniform("lights[" + i + "].color", 0, 0, 0, 0);

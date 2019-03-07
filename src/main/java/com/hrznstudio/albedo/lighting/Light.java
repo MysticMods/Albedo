@@ -12,7 +12,10 @@ public class Light {
     public float g;
     public float b;
     public float a;
-    public float radius;
+    public float rx;
+    public float ry;
+    public float rz;
+    public float angle;
 
     public Light(float x, float y, float z, float r, float g, float b, float a, float radius) {
         this.x = x;
@@ -22,9 +25,28 @@ public class Light {
         this.g = g;
         this.b = b;
         this.a = a;
-        this.radius = radius;
+        this.rx = 0;
+        this.ry = radius;
+        this.rz = 0;
     }
-
+    public Light(float x, float y, float z, float r, float g, float b, float a, float rx, float ry, float rz, float angle) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+        this.rx = rx;
+        this.ry = ry;
+        this.rz = rz;
+        this.angle = angle;
+    }
+    
+    public float radius() {
+        return (float)Math.sqrt(rx*rx + ry*ry + rz*rz);
+    }
+    
     public static Builder builder() {
         return new Builder();
     }
@@ -38,8 +60,12 @@ public class Light {
         private float g = Float.NaN;
         private float b = Float.NaN;
         private float a = Float.NaN;
-
-        private float radius = Float.NaN;
+        
+        private float rx = Float.NaN;
+        private float ry = Float.NaN;
+        private float rz = Float.NaN;
+        
+        private float angle = Float.NaN;
 
 
         public Builder pos(BlockPos pos) {
@@ -86,18 +112,27 @@ public class Light {
             return this;
         }
 
-
         public Builder radius(float radius) {
-            this.radius = radius;
+        	this.rx = 0;
+            this.ry = radius;
+            this.rz = 0;
+            this.angle = (float)(Math.PI*2.0);
             return this;
         }
 
+        public Builder direction(float x, float y, float z, float angle) {
+            this.rx = x;
+            this.ry = y;
+            this.rz = z;
+            this.angle = angle;
+            return this;
+        }
 
         public Light build() {
             if (Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) &&
                     Float.isFinite(r) && Float.isFinite(g) && Float.isFinite(b) && Float.isFinite(a) &&
-                    Float.isFinite(radius)) {
-                return new Light(x, y, z, r, g, b, a, radius);
+                    Float.isFinite(rx) && Float.isFinite(ry) && Float.isFinite(rz) && Float.isFinite(angle)) {
+                return new Light(x, y, z, r, g, b, a, rx, ry, rz, angle);
             } else {
                 throw new IllegalArgumentException("Position, color, and radius must be set, and cannot be infinite");
             }

@@ -40,20 +40,21 @@ public class GatherLightsEvent extends Event {
     }
 
     public void add(Light light) {
+    	float radius = light.radius();
         if(cameraPosition!=null) {
             double dist = MathHelper.sqrt(cameraPosition.squareDistanceTo(light.x, light.y, light.z));
-            if (dist > light.radius + maxDistance) {
+            if (dist > radius + maxDistance) {
                 return;
             }
         }
 
         if (camera != null && !camera.isBoundingBoxInFrustum(new AxisAlignedBB(
-                light.x - light.radius,
-                light.y - light.radius,
-                light.z - light.radius,
-                light.x + light.radius,
-                light.y + light.radius,
-                light.z + light.radius
+                light.x - radius,
+                light.y - radius,
+                light.z - radius,
+                light.x + radius,
+                light.y + radius,
+                light.z + radius
         ))) {
             return;
         }
